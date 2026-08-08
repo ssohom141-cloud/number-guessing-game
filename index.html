@@ -34,7 +34,8 @@
 </div>
 
 <script>
-let randomNumber, tryCount, timer, timeLeft, maxNumber, gameWon = false;
+let randomNumber, tryCount, timer, timeLeft, maxNumber;
+let gameWon = localStorage.getItem("gameWon") === "true";
 
 const levels = [
     {level: 1, max: 50, time: 0},
@@ -96,13 +97,17 @@ function checkGuess() {
         
         if(idx === 6){ // Level 7 win korle
             gameWon = true;
+            localStorage.setItem("gameWon", "true");
             document.getElementById('message').innerHTML = `<span class="boss">👑 TUI BOSS! 👑</span><br> Level 7 complete! ENDLESS MODE unlock hoyeche 🔥`;
-            // Page reload kore ENDLESS MODE show korabe
             setTimeout(()=> location.reload(), 2000);
-        } else {
+        } else if(idx === 7){ // ENDLESS MODE win korle
+            document.getElementById('message').innerHTML = `<span class="boss">Tumi sob level sesh korecho 👑</span>`;
+        } else { // Baki sob level win korle
             document.getElementById('message').innerText = `🎉 Thik dhorechis ${randomNumber}! Try: ${tryCount}`;
         }
         document.getElementById('guess').disabled = true;
+    }
+    
     } else if(guess < randomNumber) {
         document.getElementById('message').innerText = "⬆️ Boro number bolo";
     } else {
