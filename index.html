@@ -34,8 +34,7 @@
 </div>
 
 <script>
-let randomNumber, tryCount, timer, timeLeft, maxNumber;
-let gameWon = localStorage.getItem("gameWon") === "true";
+let randomNumber, tryCount, timer, timeLeft, maxNumber, gameWon = false;
 
 const levels = [
     {level: 1, max: 50, time: 0},
@@ -45,11 +44,11 @@ const levels = [
     {level: 5, max: 1200, time: 35},
     {level: 6, max: 1500, time: 40},
     {level: 7, max: 2000, time: 45}, // Boss Level
-{level: 8, name: "ENDLESS MODE 🔥", max: 9999, time: 0} // Unlock hobe
+    {level: 8, max: 9999, time: 30, name: "ENDLESS MODE 🔥"} // Unlock hobe
 ];
 
 levels.forEach((l, index) => {
-    if(l.level <= 8 || gameWon){ // Level 8 sudhu win korle dekhabe
+    if(l.level <= 7 || gameWon){ // Level 8 sudhu win korle dekhabe
         let option = document.createElement('option');
         option.value = index;
         option.innerText = l.name ? l.name : `Level ${l.level}: 1-${l.max} ${l.time > 0 ? '⏰' : ''}`;
@@ -97,17 +96,13 @@ function checkGuess() {
         
         if(idx === 6){ // Level 7 win korle
             gameWon = true;
-            localStorage.setItem("gameWon", "true");
             document.getElementById('message').innerHTML = `<span class="boss">👑 TUI BOSS! 👑</span><br> Level 7 complete! ENDLESS MODE unlock hoyeche 🔥`;
+            // Page reload kore ENDLESS MODE show korabe
             setTimeout(()=> location.reload(), 2000);
-        } else if(idx === 7){ // ENDLESS MODE win korle
-            document.getElementById('message').innerHTML = `<span class="boss">Tumi sob level sesh korecho 👑</span>`;
-        } else { // Baki sob level win korle
+        } else {
             document.getElementById('message').innerText = `🎉 Thik dhorechis ${randomNumber}! Try: ${tryCount}`;
         }
         document.getElementById('guess').disabled = true;
-    }
-    
     } else if(guess < randomNumber) {
         document.getElementById('message').innerText = "⬆️ Boro number bolo";
     } else {
