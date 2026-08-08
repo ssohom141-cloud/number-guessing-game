@@ -45,11 +45,11 @@ const levels = [
     {level: 5, max: 1200, time: 35},
     {level: 6, max: 1500, time: 40},
     {level: 7, max: 2000, time: 45}, // Boss Level
-    {level: 8, max: 9999, time: 30, name: "ENDLESS MODE 🔥"} // Unlock hobe
+{level: 8, name: "ENDLESS MODE 🔥", max: 9999, time: 0} // Unlock hobe
 ];
 
 levels.forEach((l, index) => {
-    if(l.level <= 7 || gameWon){ // Level 8 sudhu win korle dekhabe
+    if(l.level <= 8 || gameWon){ // Level 8 sudhu win korle dekhabe
         let option = document.createElement('option');
         option.value = index;
         option.innerText = l.name ? l.name : `Level ${l.level}: 1-${l.max} ${l.time > 0 ? '⏰' : ''}`;
