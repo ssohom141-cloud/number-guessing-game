@@ -3,123 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Guessing Game 👾</title>
+<title>Number Guessing Game - Boss Level</title>
 <style>
-    body {
-        background: #0d0d0d;
-        color: white;
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .container {
-        background: #1a1a1a;
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        box-shadow: 0 0 20px #a855f7;
-        width: 90%;
-        max-width: 400px;
-    }
-    h1 { color: #a855f7; margin-bottom: 10px; }
-    input {
-        padding: 12px;
-        width: 60%;
-        border-radius: 8px;
-        border: 2px solid #a855f7;
-        background: #333;
-        color: white;
-        font-size: 16px;
-        margin: 10px 0;
-    }
-    button {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        background: #22c55e;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        margin: 5px;
-        font-weight: bold;
-    }
-    button:hover { background: #16a34a; }
-    #restartBtn { background: #3b82f6; display: none; }
-    #restartBtn:hover { background: #2563eb; }
-    .hint { color: #38bdf8; margin-top: 15px; font-weight: bold; font-size: 18px; }
-    .score { color: #facc15; margin-top: 15px; font-size: 16px; }
-    .win {
-        font-size: 22px;
-        color: #22c55e;
-        animation: pop 0.5s ease;
-    }
-    @keyframes pop {
-        0% { transform: scale(0.5); }
-        100% { transform: scale(1); }
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 20px; }
+    .container { max-width: 400px; margin: auto; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px; }
+    select, input, button { padding: 10px; margin: 5px; border-radius: 10px; border: none; font-size: 16px; width: 90%; }
+    button { background: #ff6b6b; color: white; cursor: pointer; font-weight: bold; }
+    button:hover { background: #ff5252; }
+    #timer { font-size: 20px; color: #ffd93d; font-weight: bold; }
+    #message { margin-top: 15px; font-size: 18px; }
+    .boss { color: gold; font-size: 24px; animation: glow 1s infinite; }
+    @keyframes glow { 0%{text-shadow:0 0 5px gold} 100%{text-shadow:0 0 20px gold} }
 </style>
 </head>
 <body>
 <div class="container">
-    <h1>👾 Number Guessing Game</h1>
-    <p>1 theke 100 er moddhe ekta number guess kor</p>
-    <input type="number" id="guessInput" placeholder="Number likh" min="1" max="100">
-    <br>
+    <h1>🎯 Number Guess Pro</h1>
+    
+    <label for="level">Level Select:</label>
+    <select id="level" onchange="startGame()"></select>
+
+    <p id="timer"></p>
+    <p>Try: <span id="try">0</span></p>
+    
+    <input type="number" id="guess" placeholder="Number dao">
     <button onclick="checkGuess()">Guess</button>
-    <button id="restartBtn" onclick="restartGame()">Abar Khelbo</button>
-    <p class="hint" id="hint"></p>
-    <p class="score" id="score">Try: 0</p>
+    <button onclick="startGame()">Abar Khelbo</button>
+    
+    <p id="message"></p>
 </div>
 
 <script>
-    let secretNumber = Math.floor(Math.random() * 100) + 1;
-    let attempts = 0;
+let randomNumber, tryCount, timer, timeLeft, maxNumber, gameWon = false;
 
-    function checkGuess() {
-        let guess = Number(document.getElementById('guessInput').value);
-        let hint = document.getElementById('hint');
+const levels = [
+    {level: 1, max: 50, time: 0},
+    {level: 2, max: 100, time: 0},
+    {level: 3, max: 500, time: 15},
+    {level: 4, max: 1000, time: 30},
+    {level: 5, max: 1200, time: 35},
+    {level: 6, max: 1500, time: 40},
+    {level: 7, max: 2000, time: 45}, // Boss Level
+    {level: 8, max: 9999, time: 30, name: "ENDLESS MODE 🔥"} // Unlock hobe
+];
+
+levels.forEach((l, index) => {
+    if(l.level <= 7 || gameWon){ // Level 8 sudhu win korle dekhabe
+        let option = document.createElement('option');
+        option.value = index;
+        option.innerText = l.name ? l.name : `Level ${l.level}: 1-${l.max} ${l.time > 0 ? '⏰' : ''}`;
+        document.getElementById('level').appendChild(option);
+    }
+});
+
+function startGame() {
+    let idx = parseInt(document.getElementById('level').value);
+    let currentLevel = levels[idx];
+    maxNumber = currentLevel.max;
+    randomNumber = Math.floor(Math.random() * maxNumber) + 1;
+    tryCount = 0;
+    document.getElementById('try').innerText = 0;
+    document.getElementById('message').innerText = `New game! 1 theke ${maxNumber} er moddhe`;
+    clearInterval(timer);
+    
+    if(currentLevel.time > 0) {
+        timeLeft = currentLevel.time;
+        document.getElementById('timer').innerText = "Time: " + timeLeft + "s";
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = "Time: " + timeLeft + "s";
+            if(timeLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById('message').innerText = `😭 Time sesh! Number chilo: ${randomNumber}`;
+                document.getElementById('guess').disabled = true;
+            }
+        }, 1000);
+    } else {
+        document.getElementById('timer').innerText = "";
+    }
+    document.getElementById('guess').disabled = false;
+}
+
+function checkGuess() {
+    let guess = parseInt(document.getElementById('guess').value);
+    if(!guess) return;
+    tryCount++;
+    document.getElementById('try').innerText = tryCount;
+    
+    if(guess === randomNumber) {
+        clearInterval(timer);
+        let idx = parseInt(document.getElementById('level').value);
         
-        if(guess < 1 || guess > 100) {
-            hint.innerText = "1 theke 100 er moddhe number de bos!";
-            return;
-        }
-
-        attempts++;
-        document.getElementById('score').innerText = `Try: ${attempts}`;
-
-        if (guess === secretNumber) {
-            hint.innerHTML = `🎉 Dhur beta! Thik dhorechis ${secretNumber} ! 🎉`;
-            hint.className = "hint win";
-            document.getElementById('restartBtn').style.display = "inline-block";
-            document.querySelector('button[onclick="checkGuess()"]').disabled = true;
-        } else if (guess < secretNumber) {
-            hint.innerText = "📈 Beshi kor! Number ta aro boro";
-            hint.className = "hint";
+        if(idx === 6){ // Level 7 win korle
+            gameWon = true;
+            document.getElementById('message').innerHTML = `<span class="boss">👑 TUI BOSS! 👑</span><br> Level 7 complete! ENDLESS MODE unlock hoyeche 🔥`;
+            // Page reload kore ENDLESS MODE show korabe
+            setTimeout(()=> location.reload(), 2000);
         } else {
-            hint.innerText = "📉 Kom kor! Number ta aro choto";
-            hint.className = "hint";
+            document.getElementById('message').innerText = `🎉 Thik dhorechis ${randomNumber}! Try: ${tryCount}`;
         }
-        document.getElementById('guessInput').value = "";
+        document.getElementById('guess').disabled = true;
+    } else if(guess < randomNumber) {
+        document.getElementById('message').innerText = "⬆️ Boro number bolo";
+    } else {
+        document.getElementById('message').innerText = "⬇️ Choto number bolo";
     }
-
-    function restartGame() {
-        secretNumber = Math.floor(Math.random() * 100) + 1;
-        attempts = 0;
-        document.getElementById('score').innerText = `Try: 0`;
-        document.getElementById('hint').innerText = "";
-        document.getElementById('restartBtn').style.display = "none";
-        document.querySelector('button[onclick="checkGuess()"]').disabled = false;
-    }
-
-    // Enter chapleo kaj korbe
-    document.getElementById('guessInput').addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            checkGuess();
-        }
-    });
+    document.getElementById('guess').value = "";
+}
+startGame();
 </script>
 </body>
-</html>
+    </html>
